@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login</title>
+  <style type="text/css">
+    input {
+      background-color: gray;
+    }
+  </style>
+</head>
+<body>
+  <div id="main">
+    <h3>Hola a la aplicación: {{ name_app }}</h3>
+    <hr>
+    <form @submit.prevent="login"> 
+      <fieldset>
+        <label>Email</label>
+        <input type="email" v-model="email" placeholder="write here">
+      </fieldset>
+      <fieldset>
+        <label>Password</label>
+        <input type="password" v-model="password" placeholder="write here">
+      </fieldset>
+      <button type="submit">Access</button>
+    </form>
+    <p v-if="loginError">{{ loginError }}</p>
+    <hr>
+  </div>
+  
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    const { createApp, ref } = Vue;
+
+    createApp({
+      setup() {
+        const name_app = ref('Mi primer app');
+        const email = ref('');
+        const password = ref('');
+        const loginError = ref('');
+
+        const login = () => {
+          fetch('users.json')
+            .then(response => response.json())
+            .then(users => {
+              console.log(users);  
+              
+              let validUser = false;
+              users.forEach(user => {
+                if (user.email === email.value && user.password === password.value) {
+                  validUser = true;
+                }
+              });
+              
+              if (validUser) {
+                alert('Login exitoso');
+                loginError.value = '';  
+              } else {
+                loginError.value = 'Email o contraseña incorrectos';
+              }
+            })
+            .catch(error => {
+              console.error('Error al cargar los usuarios:', error);
+              loginError.value = 'Error de conexión';
+            });
+        };
+
+        return {
+          name_app,
+          email,
+          password,
+          login,
+          loginError
+        };
+      }
+    }).mount('#main');
+  </script>
+</body>
+</html>
